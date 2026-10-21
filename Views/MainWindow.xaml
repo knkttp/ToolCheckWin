@@ -1,0 +1,378 @@
+<Window x:Class="ToolCheckWin.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:ToolCheckWin.Views"
+        Title="ToolCheckWin — Hệ Thống Thẩm Định Phần Cứng Windows (.NET 8)"
+        Icon="/app.ico"
+        Width="1320"
+        Height="880"
+        MinWidth="1150"
+        MinHeight="780"
+        WindowStartupLocation="CenterScreen"
+        Background="#090D16"
+        Foreground="#F8FAFC"
+        FontFamily="Segoe UI">
+
+    <Grid x:Name="DashboardCaptureRoot" Background="#090D16" Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- TOP HEADER BAR -->
+        <Border Grid.Row="0"
+                Background="#111827"
+                BorderBrush="#1E293B"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="18,12"
+                Margin="0,0,0,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚡ TOOLCHECKWIN"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#38BDF8"/>
+                        <Border Background="#1E293B"
+                                CornerRadius="4"
+                                Padding="8,2"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center">
+                            <TextBlock x:Name="TxtScanStatus"
+                                       Text="Đang khởi tạo..."
+                                       FontSize="11.5"
+                                       Foreground="#94A3B8"
+                                       FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="Hệ thống thẩm định phần cứng Laptop/PC chuyên sâu: WMI, SMART SSD, EDID, MDM/Autopilot &amp; Low-Level Peripheral Hook"
+                               FontSize="12"
+                               Foreground="#94A3B8"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="BtnRescan"
+                            Click="BtnRescan_Click"
+                            Content="🔄 Quét lại phần cứng"
+                            Background="#1E293B"
+                            Foreground="#F8FAFC"
+                            FontWeight="SemiBold"
+                            Padding="14,8"
+                            Margin="0,0,10,0"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                    <Button x:Name="BtnDisplayTest"
+                            Click="BtnDisplayTest_Click"
+                            Content="🖥 Test Điểm Chết Màn Hình (7 Màu)"
+                            Background="#0284C7"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            Padding="14,8"
+                            Margin="0,0,10,0"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                    <Button x:Name="BtnExportPng"
+                            Click="BtnExportPng_Click"
+                            Content="🖼 Xuất Ảnh PNG"
+                            Background="#4F46E5"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            Padding="14,8"
+                            Margin="0,0,10,0"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                    <Button x:Name="BtnExportPdf"
+                            Click="BtnExportPdf_Click"
+                            Content="📄 Xuất Chứng Chỉ PDF (A4)"
+                            Background="#16A34A"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            Padding="14,8"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAIN CONTENT BODY -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- UPPER HARDWARE & SCORING CARDS -->
+            <Grid Grid.Row="0" Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="290"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- COLUMN 0: SCORE CIRCLE & BREAKDOWN -->
+                <Border Grid.Column="0"
+                        Background="#111827"
+                        BorderBrush="#1E293B"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="16"
+                        Margin="0,0,12,0">
+                    <StackPanel>
+                        <TextBlock Text="ĐIỂM THẨM ĐỊNH TỔNG QUÁT"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#94A3B8"
+                                   HorizontalAlignment="Center"/>
+
+                        <!-- Vòng tròn điểm số (Score Ring) -->
+                        <Grid Width="136" Height="136" Margin="0,10,0,10" HorizontalAlignment="Center">
+                            <Ellipse Width="136" Height="136"
+                                     Stroke="#1E293B"
+                                     StrokeThickness="10"/>
+                            <Ellipse x:Name="ScoreRingEllipse"
+                                     Width="136" Height="136"
+                                     Stroke="#22C55E"
+                                     StrokeThickness="10"
+                                     StrokeDashArray="40 100"
+                                     StrokeDashCap="Round"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <RotateTransform Angle="-90"/>
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock x:Name="TxtTotalScore"
+                                           Text="0"
+                                           FontSize="36"
+                                           FontWeight="ExtraBold"
+                                           Foreground="#F8FAFC"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="/ 100 ĐIỂM"
+                                           FontSize="10"
+                                           FontWeight="Bold"
+                                           Foreground="#64748B"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border x:Name="GradeBadge"
+                                Background="#1E293B"
+                                CornerRadius="6"
+                                Padding="10,5"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,10">
+                            <TextBlock x:Name="TxtGrade"
+                                       Text="HẠNG: ĐANG TÍNH..."
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Foreground="#38BDF8"/>
+                        </Border>
+
+                        <!-- 5 Score Pillars -->
+                        <Grid Margin="0,2,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="• Pin (Battery):" Foreground="#CBD5E1" FontSize="12" Margin="0,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="TxtBatteryScore" Text="0/20" Foreground="#38BDF8" FontWeight="Bold" FontSize="12" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="• Ổ cứng (SMART):" Foreground="#CBD5E1" FontSize="12" Margin="0,2"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="TxtDiskScore" Text="0/20" Foreground="#38BDF8" FontWeight="Bold" FontSize="12" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="• Màn hình (Display):" Foreground="#CBD5E1" FontSize="12" Margin="0,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TxtDisplayScore" Text="0/20" Foreground="#38BDF8" FontWeight="Bold" FontSize="12" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="• Ngoại vi (Peripherals):" Foreground="#CBD5E1" FontSize="12" Margin="0,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="TxtPeripheralScore" Text="0/20" Foreground="#38BDF8" FontWeight="Bold" FontSize="12" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="• Bảo mật (Security):" Foreground="#CBD5E1" FontSize="12" Margin="0,2"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="TxtSecurityScore" Text="0/20" Foreground="#38BDF8" FontWeight="Bold" FontSize="12" Margin="0,2"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- COLUMN 1: SYSTEM SPEC & DISPLAY EDID -->
+                <Border Grid.Column="1"
+                        Background="#111827"
+                        BorderBrush="#1E293B"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="16"
+                        Margin="0,0,12,0">
+                    <StackPanel>
+                        <TextBlock Text="1. CẤU HÌNH HỆ THỐNG &amp; MÀN HÌNH EDID"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Foreground="#38BDF8"
+                                   Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Hãng &amp; Model máy:" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtModelInfo" Text="..." Foreground="#F8FAFC" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Số Serial (BIOS SMBIOS):" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtSerialInfo" Text="..." Foreground="#38BDF8" FontWeight="Bold" FontSize="13" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Vi xử lý (CPU):" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtCpuInfo" Text="..." Foreground="#F8FAFC" FontWeight="SemiBold" FontSize="12.5" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Bộ nhớ RAM &amp; Bus:" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtRamInfo" Text="..." Foreground="#F8FAFC" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Card đồ họa (GPU):" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtGpuInfo" Text="..." Foreground="#F8FAFC" FontWeight="SemiBold" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Tấm nền màn hình (EDID Registry):" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtEdidInfo" Text="..." Foreground="#22C55E" FontWeight="SemiBold" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- COLUMN 2: BATTERY & DISK SMART -->
+                <Border Grid.Column="2"
+                        Background="#111827"
+                        BorderBrush="#1E293B"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="16"
+                        Margin="0,0,12,0">
+                    <StackPanel>
+                        <TextBlock Text="2. SỨC KHỎE PIN &amp; Ổ CỨNG SMART"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Foreground="#38BDF8"
+                                   Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Độ chai Pin &amp; Dung lượng (root\WMI):" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtBatteryHealth" Text="..." Foreground="#F8FAFC" FontWeight="Bold" FontSize="13" Margin="0,0,0,4"/>
+                        <ProgressBar x:Name="BarBatteryHealth" Height="8" Minimum="0" Maximum="100" Value="100" Foreground="#22C55E" Background="#1E293B" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Ổ cứng vật lý (MSFT_PhysicalDisk):" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtDiskName" Text="..." Foreground="#F8FAFC" FontWeight="Bold" FontSize="12.5" TextTrimming="CharacterEllipsis" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Sức khỏe SSD &amp; Nhiệt độ:" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtDiskHealthTemp" Text="..." Foreground="#F8FAFC" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Thời gian chạy &amp; Lỗi Đọc/Ghi (SMART):" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtDiskSmartErrors" Text="..." Foreground="#F8FAFC" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Kết quả kiểm tra Điểm chết Màn hình:" Foreground="#64748B" FontSize="11"/>
+                        <ComboBox x:Name="CboDisplayStatus"
+                                  SelectionChanged="CboDisplayStatus_SelectionChanged"
+                                  SelectedIndex="0"
+                                  Margin="0,4,0,0"
+                                  Padding="8,4">
+                            <ComboBoxItem Content="0 — Không điểm chết / Đạt chuẩn (20đ)"/>
+                            <ComboBoxItem Content="1 — Lỗi nhẹ: 1-2 điểm / Ám nhẹ (12đ)"/>
+                            <ComboBoxItem Content="2 — Lỗi nặng: Sọc / Đốm mực (0đ)"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+
+                <!-- COLUMN 3: SECURITY, MDM, AUTOPILOT & TPM -->
+                <Border Grid.Column="3"
+                        Background="#111827"
+                        BorderBrush="#1E293B"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="3. AN NINH, KHÓA MDM &amp; BIOS"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Foreground="#38BDF8"
+                                   Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Trạng thái MDM / Intune / Autopilot:" Foreground="#64748B" FontSize="11"/>
+                        <Border x:Name="MdmAlertBanner"
+                                Background="#052E16"
+                                BorderBrush="#16A34A"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="8"
+                                Margin="0,4,0,10">
+                            <TextBlock x:Name="TxtMdmStatus"
+                                       Text="Đang kiểm tra dsregcmd &amp; Enrollments..."
+                                       Foreground="#4ADE80"
+                                       FontWeight="Bold"
+                                       FontSize="12"
+                                       TextWrapping="Wrap"/>
+                        </Border>
+
+                        <TextBlock Text="Chip bảo mật TPM 2.0:" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtTpmStatus" Text="..." Foreground="#F8FAFC" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Trạng thái UEFI Secure Boot:" Foreground="#64748B" FontSize="11"/>
+                        <TextBlock x:Name="TxtSecureBootStatus" Text="..." Foreground="#F8FAFC" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Xác nhận khóa mật khẩu BIOS:" Foreground="#64748B" FontSize="11" Margin="0,0,0,4"/>
+                        <CheckBox x:Name="ChkBiosLocked"
+                                  Checked="ChkBiosLocked_Changed"
+                                  Unchecked="ChkBiosLocked_Changed"
+                                  Content="Máy đang bị khóa mật khẩu BIOS (Hạ hạng F)"
+                                  Foreground="#F87171"
+                                  FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- LOWER INTERACTIVE KEYBOARD + AUDIO + MIC TEST PANEL -->
+            <Border Grid.Row="1"
+                    Background="#111827"
+                    BorderBrush="#1E293B"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="16">
+                <views:KeyboardTestControl x:Name="KeyboardTester"/>
+            </Border>
+        </Grid>
+
+        <!-- FOOTER ANTI-TAMPER HASH BAR -->
+        <Border Grid.Row="2"
+                Background="#111827"
+                BorderBrush="#1E293B"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="14,8"
+                Margin="0,12,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="TxtFooterSummary"
+                           Text="Sẵn sàng xuất báo cáo thẩm định phần cứng."
+                           Foreground="#94A3B8"
+                           FontSize="12"
+                           VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="SHA-256 Anti-Tamper Hash: "
+                               Foreground="#64748B"
+                               FontSize="12"/>
+                    <TextBlock x:Name="TxtReportHash"
+                               Text="----------------"
+                               Foreground="#38BDF8"
+                               FontWeight="Bold"
+                               FontFamily="Consolas"
+                               FontSize="13"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
